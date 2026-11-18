@@ -1,0 +1,179 @@
+{
+ "attemptedAt": "2026-11-18T09:16:48Z",
+ "price": {
+  "usd": 64634.39,
+  "change": 0.52,
+  "asOf": 1794993409305
+ },
+ "history": [
+  [
+   1792368000000,
+   81838
+  ],
+  [
+   1792454400000,
+   82938
+  ],
+  [
+   1792540800000,
+   84025
+  ],
+  [
+   1792627200000,
+   81307
+  ],
+  [
+   1792713600000,
+   81078
+  ],
+  [
+   1792800000000,
+   80770
+  ],
+  [
+   1792886400000,
+   80053
+  ],
+  [
+   1792972800000,
+   80009
+  ],
+  [
+   1793059200000,
+   80800
+  ],
+  [
+   1793145600000,
+   81249
+  ],
+  [
+   1793232000000,
+   77780
+  ],
+  [
+   1793318400000,
+   77180
+  ],
+  [
+   1793404800000,
+   77424
+  ],
+  [
+   1793491200000,
+   78231
+  ],
+  [
+   1793577600000,
+   76674
+  ],
+  [
+   1793664000000,
+   77337
+  ],
+  [
+   1793750400000,
+   80428
+  ],
+  [
+   1793836800000,
+   75969
+  ],
+  [
+   1793923200000,
+   75731
+  ],
+  [
+   1794009600000,
+   75754
+  ],
+  [
+   1794096000000,
+   74754
+  ],
+  [
+   1794182400000,
+   75259
+  ],
+  [
+   1794268800000,
+   73698
+  ],
+  [
+   1794355200000,
+   73928
+  ],
+  [
+   1794441600000,
+   71370
+  ],
+  [
+   1794528000000,
+   68237
+  ],
+  [
+   1794614400000,
+   64119
+  ],
+  [
+   1794700800000,
+   65315
+  ],
+  [
+   1794787200000,
+   64817
+  ],
+  [
+   1794873600000,
+   64873
+  ],
+  [
+   1794960000000,
+   64634
+  ]
+ ],
+ "priceSource": "Coinbase",
+ "priceStatus": "ok",
+ "priceError": "",
+ "priceFetchedAt": "2026-11-18T09:16:48Z",
+ "news": [
+  {
+   "title": "MP urges council to speed up heating oil payments",
+   "url": "https://www.bbc.co.uk/news/articles/cm792dqz4qvyo",
+   "source": "BBC News",
+   "at": 1794991706000
+  },
+  {
+   "title": "Security flaw found in Java, world's third-largest programming language",
+   "url": "https://www.bbc.co.uk/news/articles/cke89jevqm1vo",
+   "source": "BBC News",
+   "at": 1794991626000
+  },
+  {
+   "title": "Higher petrol and diesel prices push UK inflation to 3.6%",
+   "url": "https://www.bbc.co.uk/news/articles/cmy498kdkx3xo",
+   "source": "BBC News",
+   "at": 1794991538000
+  },
+  {
+   "title": "States to debate social security contributions cut",
+   "url": "https://www.bbc.co.uk/news/articles/cqgm39mwjgjpo",
+   "source": "BBC News",
+   "at": 1794982678000
+  },
+  {
+   "title": "How important are Nvidia and Jensen Huang to the US economy?",
+   "url": "https://www.bbc.co.uk/news/articles/c68798vdprwpo",
+   "source": "BBC News",
+   "at": 1794981861000
+  },
+  {
+   "title": "Jeff Bezos says he was 'heavily involved' in casting Robert Pattinson as new Bond",
+   "url": "https://www.bbc.co.uk/news/articles/cm5y1eejk292o",
+   "source": "BBC News",
+   "at": 1794974454000
+  }
+ ],
+ "newsStatus": "ok",
+ "newsError": "",
+ "newsFetchedAt": "2026-11-18T09:16:48Z"
+}

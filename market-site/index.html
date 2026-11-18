@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的每日市場觀察</title>
+<style>
+  body{margin:0;background:#f6f5f1;color:#1f1e1b;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;line-height:1.6}
+  .wrap{max-width:720px;margin:0 auto;padding:16px}
+  .card{background:#fff;border:1px solid #e3e0d8;border-radius:12px;padding:18px;margin-bottom:16px}
+  .status{border-left:5px solid #2e7d4f}
+  .status.bad{border-left-color:#c0392b}
+  .status b{display:block;font-size:18px}
+  h1{font-size:20px;margin:0 0 4px}
+  h2{font-size:20px;margin:0 0 8px}
+  .price{font-size:44px;font-weight:600;line-height:1.15}
+  .chg{font-size:24px;font-weight:600;margin-left:8px}
+  .muted{color:#6b675e;font-size:14px}
+  .chip{display:inline-block;border:1px solid #d6d2c8;border-radius:99px;padding:2px 12px;font-size:14px;color:#6b675e;margin:6px 0}
+  .chip.bad{border-color:#c0392b;color:#1f1e1b;font-weight:600}
+  .old .price,.old .chg,.old ul{opacity:.55}
+  ul{list-style:none;margin:0;padding:0}
+  li{padding:14px 0;border-top:1px solid #eceae3}
+  li:first-child{border-top:0;padding-top:0}
+  .nt{font-size:18px;font-weight:600;line-height:1.4;margin:4px 0}
+  .nt a{color:#1f1e1b}
+  a.go{font-weight:600;color:#1f1e1b}
+  svg{width:100%;height:auto;display:block;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="card">讀取中，請稍候…</div></div>
+<script>
+const LIMIT_H = 24;
+const fmt = new Intl.DateTimeFormat('zh-TW', {timeZone:'Asia/Taipei', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hourCycle:'h23'});
+const fmtY = new Intl.DateTimeFormat('zh-TW', {timeZone:'Asia/Taipei', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hourCycle:'h23'});
+const usd = n => '$' + Math.round(n).toLocaleString('en-US');
+const ageH = s => (Date.now() - new Date(s).getTime()) / 3600000;
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function st(d, k) {
+  const bad = d[k + 'Status'] !== 'ok';
+  const stale = !bad && !(ageH(d[k + 'FetchedAt']) <= LIMIT_H);
+  return {bad, stale, old: bad || stale};
+}
+function chip(d, k) {
+  const s = st(d, k);
+  const t = d[k + 'FetchedAt'] ? fmtY.format(new Date(d[k + 'FetchedAt'])) : '（從未成功）';
+  const text = s.bad ? '舊資料：更新失敗，這是 ' + t + ' 抓到的'
+    : s.stale ? '舊資料：最後一次成功是 ' + t + '，已超過 24 小時'
+    : '最新：已於 ' + t + ' 更新成功';
+  return el('span', 'chip' + (s.old ? ' bad' : ''), text);
+}
+function spark(hist) {
+  const W = 600, H = 200, p = 8;
+  const vs = hist.map(x => x[1]);
+  const lo = Math.min(...vs), hi = Math.max(...vs), t0 = hist[0][0], t1 = hist[hist.length - 1][0];
+  const pts = hist.map(x => (p + (x[0] - t0) / (t1 - t0 || 1) * (W - 2 * p)).toFixed(1) + ',' + (H - p - (x[1] - lo) / (hi - lo || 1) * (H - 2 * p)).toFixed(1)).join(' ');
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  const pl = document.createElementNS(ns, 'polyline');
+  pl.setAttribute('points', pts);
+  pl.setAttribute('fill', 'none');
+  pl.setAttribute('stroke', '#2b6cb0');
+  pl.setAttribute('stroke-width', '3');
+  svg.appendChild(pl);
+  return svg;
+}
+
+function render(d) {
+  const app = document.getElementById('app');
+  app.replaceChildren();
+  const sp = st(d, 'price'), sn = st(d, 'news');
+  const anyBad = sp.bad || sn.bad, anyStale = sp.stale || sn.stale;
+
+  const s = el('div', 'card status' + (anyBad || anyStale ? ' bad' : ''));
+  s.appendChild(el('b', null, anyBad ? '這次更新失敗，以下有舊資料' : anyStale ? '這是舊資料，已超過 24 小時沒有更新' : '這次更新成功'));
+  s.appendChild(el('div', null, '最近一次嘗試更新：' + fmtY.format(new Date(d.attemptedAt)) + '（台北時間）'));
+  [['price', '比特幣價格'], ['news', '商業新聞']].forEach(([k, n]) => {
+    if (st(d, k).bad) s.appendChild(el('div', null, '【' + n + '】更新失敗：' + (d[k + 'Error'] || '原因不明') + '。畫面顯示的是舊資料。'));
+  });
+  app.appendChild(s);
+
+  const c = el('div', 'card' + (sp.old ? ' old' : ''));
+  c.appendChild(el('h1', null, '比特幣 BTC'));
+  if (d.price) {
+    const row = el('div');
+    row.appendChild(el('span', 'price', usd(d.price.usd)));
+    const ch = el('span', 'chg', (d.price.change > 0 ? '+' : '') + d.price.change.toFixed(2) + '%');
+    ch.style.color = d.price.change >= 0 ? '#2e7d4f' : '#c0392b';
+    row.appendChild(ch);
+    c.appendChild(row);
+    c.appendChild(el('div', 'muted', '單位：美元；漲跌幅為過去 24 小時；報價時間 ' + fmtY.format(new Date(d.price.asOf)) + '（台北時間）'));
+  } else {
+    c.appendChild(el('div', null, '目前沒有價格資料'));
+  }
+  c.appendChild(chip(d, 'price'));
+  c.appendChild(el('div', 'muted', '資料來源：' + (d.priceSource || '—') + ' 免費公開 API'));
+  if (d.history && d.history.length > 2) {
+    const vs = d.history.map(x => x[1]);
+    c.appendChild(el('div', 'muted', '近 30 日：最高 ' + usd(Math.max(...vs)) + '　最低 ' + usd(Math.min(...vs))));
+    c.appendChild(spark(d.history));
+  }
+  app.appendChild(c);
+
+  const n = el('div', 'card' + (sn.old ? ' old' : ''));
+  n.appendChild(el('h2', null, '商業新聞'));
+  n.appendChild(chip(d, 'news'));
+  n.appendChild(el('div', 'muted', '來源：BBC News 商業（標題為英文原文）'));
+  const ul = el('ul');
+  (d.news || []).forEach(r => {
+    const li = el('li');
+    li.appendChild(el('div', 'muted', fmt.format(new Date(r.at)) + ' 發布'));
+    const ok = /^https?:\/\//.test(r.url);
+    const h = el('div', 'nt');
+    if (ok) { const a = el('a', null, r.title); a.href = r.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; h.appendChild(a); }
+    else h.textContent = r.title;
+    li.appendChild(h);
+    const f = el('div', 'muted', '來源：' + r.source + '　');
+    if (ok) { const a = el('a', 'go', '閱讀原文 ↗'); a.href = r.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; f.appendChild(a); }
+    li.appendChild(f);
+    ul.appendChild(li);
+  });
+  n.appendChild(ul);
+  app.appendChild(n);
+
+  app.appendChild(el('div', 'muted', '新聞標題與連結版權屬 BBC。資料每天台北時間約 18:00 自動更新，僅供參考，不是投資建議。'));
+}
+
+fetch('data.json?t=' + Date.now(), {cache: 'no-store'})
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(render)
+  .catch(e => { document.getElementById('app').textContent = '載入失敗：' + e.message; });
+</script>
+</body>
+</html>
